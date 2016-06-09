@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Flexible Work Time Scheduler</string>
+
+    <string-array name="popup_actions">
+        <item>Start</item>
+        <item>End</item>
+        <item>Vacation/Holiday</item>
+        <item>Reset</item>
+    </string-array>
+</resources>
