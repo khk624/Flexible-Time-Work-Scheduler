@@ -2,8 +2,6 @@ package com.mycompany.hkhang.flexibleworktimescheduler;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,7 +46,7 @@ public class TimeScheduler {
         sb.append(year).append("/").append(month).append("/").append(dayOfMonth);
         String strDate = sb.toString();
 
-        SharedPreferences sharedPref = context.getSharedPreferences("TEST", Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
         String jsonString = sharedPref.getString(strDate, null);
 
         if (jsonString == null) {
@@ -116,7 +114,7 @@ public class TimeScheduler {
         sb.append(year).append("/").append(month).append("/").append(dayOfMonth);
         String strDate = sb.toString();
 
-        SharedPreferences sharedPref = context.getSharedPreferences("TEST", Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
         String jsonString = sharedPref.getString(strDate, null);
 
         if (jsonString == null)
@@ -204,7 +202,7 @@ public class TimeScheduler {
             jsonObject.put("startTime", startTime);
             jsonObject.put("endTime", endTime);
 
-            SharedPreferences sp = context.getSharedPreferences("TEST", Context.MODE_PRIVATE);
+            SharedPreferences sp = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sp.edit();
             editor.putString(strDate, jsonObject.toString());
             editor.commit();
@@ -230,7 +228,7 @@ public class TimeScheduler {
             jsonObject.put("startTime", startTime);
             jsonObject.put("endTime", endTime);
 
-            SharedPreferences sp = context.getSharedPreferences("TEST", Context.MODE_PRIVATE);
+            SharedPreferences sp = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sp.edit();
             editor.putString(strDate, jsonObject.toString());
             editor.commit();

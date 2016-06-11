@@ -19,6 +19,9 @@ public class MainActivity extends AppCompatActivity {
     TextView textViewTotalTime;
     TextView textViewRemaining;
 
+    private static final long DOUBLE_CLICK_TIME_DELTA = 300;//milliseconds
+    private long lastClickTime = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,26 +39,40 @@ public class MainActivity extends AppCompatActivity {
                 timeScheduler.updateInfo(year, month, dayOfMonth);
                 updateUI();
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("Choose an action")
-                        .setItems(R.array.popup_actions, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (which == 0)
-                                    openTimePicker(0);
-                                else if (which == 1)
-                                    openTimePicker(1);
-                                else if (which == 2)
-                                    openHolidayPopup();
-                                else if (which == 3)
-                                    reset();
-                            }
-                        });
+                if (isDoubleClick()) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("Choose an action")
+                            .setItems(R.array.popup_actions, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (which == 0)
+                                        openTimePicker(0);
+                                    else if (which == 1)
+                                        openTimePicker(1);
+                                    else if (which == 2)
+                                        openHolidayPopup();
+                                    else if (which == 3)
+                                        reset();
+                                }
+                            });
 
-                // Create the AlertDialog
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
             }
         });
+    }
+
+    //TODO find out better way for dobule clicking
+    // workaround for find out double click, GestureDetector is not working for some reason.
+    private boolean isDoubleClick() {
+        long clickTime = System.currentTimeMillis();
+        if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA){
+            lastClickTime = clickTime;
+            return true;
+        } else {
+            lastClickTime = clickTime;
+            return false;
+        }
     }
 
     public void openTimePicker(final int mode) {
@@ -76,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
         hours = minutes / 60;
         minutes = minutes % 60;
 
-        //TODO change following actions as double click
         //TODO to find better Time Picker UI
         TimePickerDialog tpd = new TimePickerDialog(this,
                 new TimePickerDialog.OnTimeSetListener() {
