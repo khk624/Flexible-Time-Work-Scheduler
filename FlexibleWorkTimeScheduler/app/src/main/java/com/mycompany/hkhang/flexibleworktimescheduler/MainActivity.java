@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    //TODO find out better way for dobule clicking
+    //TODO find out better way for double clicking
     // workaround for find out double click, GestureDetector is not working for some reason.
     private boolean isDoubleClick() {
         long clickTime = System.currentTimeMillis();
@@ -113,12 +113,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openHolidayPopup() {
-        //TODO add vacation / holidays
+        final CharSequence[] Report_items = {"Half Day Off", "Full Time Off / Holiday", "NONE"};
+        int selected = 2;
+
+        final AlertDialog.Builder holidayDialog = new AlertDialog.Builder(this);
+        holidayDialog.setTitle("Day Off / Holiday");
+        holidayDialog.setSingleChoiceItems(Report_items, selected,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int item) {
+                        if (item == 0)
+                            timeScheduler.setVacation(TimeScheduler.Vacation.HALF_DAY_OFF);
+                        else if (item == 1)
+                            timeScheduler.setVacation(TimeScheduler.Vacation.FULL_TIME_OFF);
+                        else
+                            timeScheduler.setVacation(TimeScheduler.Vacation.NONE);
+                        updateUI();
+                        dialog.dismiss();
+                    }
+                });
+        AlertDialog alert_dialog = holidayDialog.create();
+        alert_dialog.show();
     }
 
     public void reset() {
-        timeScheduler.setStartTime(0);
-        timeScheduler.setEndTime(0);
+        timeScheduler.reset();
         updateUI();
     }
 

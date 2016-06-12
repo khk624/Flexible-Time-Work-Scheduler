@@ -14,6 +14,12 @@ import java.util.GregorianCalendar;
  */
 
 public class TimeScheduler {
+    enum Vacation {
+        HALF_DAY_OFF,
+        FULL_TIME_OFF,
+        NONE
+    }
+
     Context context;
     // Time information is minutes based. You should convert into hours and minutes
     int year;
@@ -23,6 +29,7 @@ public class TimeScheduler {
 
     int startTime;
     int endTime;
+    Vacation vacation;
     int totalTime;
     int remainingTime;
 
@@ -58,6 +65,13 @@ public class TimeScheduler {
                 JSONObject jsonObject = new JSONObject(jsonString);
                 startTime = jsonObject.getInt("startTime");
                 endTime = jsonObject.getInt("endTime");
+                int vac = jsonObject.getInt("vacation");
+                if (vac == 0)
+                    vacation = Vacation.HALF_DAY_OFF;
+                else if (vac == 1)
+                    vacation = Vacation.FULL_TIME_OFF;
+                else
+                    vacation = Vacation.NONE;
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -122,19 +136,35 @@ public class TimeScheduler {
 
         int startTime = 0;
         int endTime = 0;
+        Vacation vacation = Vacation.NONE;
         try {
             JSONObject jsonObject = new JSONObject(jsonString);
             startTime = jsonObject.getInt("startTime");
             endTime = jsonObject.getInt("endTime");
+            int vac = jsonObject.getInt("vacation");
+            if (vac == 0)
+                vacation = Vacation.HALF_DAY_OFF;
+            else if (vac == 1)
+                vacation = Vacation.FULL_TIME_OFF;
+            else
+                vacation = Vacation.NONE;
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        if (startTime == 0 || startTime > endTime)
-            return 0;
+        if (vacation == Vacation.FULL_TIME_OFF)
+            return 8 * 60;
+        else if (startTime == 0 || startTime > endTime) {
+            if (vacation == Vacation.HALF_DAY_OFF)
+                return 4 * 60;
+            else
+                return 0;
+        }
         else {
             int workingTime = endTime - startTime;
             workingTime = workingTime - getTotalMealTime(startTime, endTime);
+            if (vacation == Vacation.HALF_DAY_OFF)
+                workingTime += 4 * 60;
             return workingTime;
         }
     }
@@ -193,22 +223,7 @@ public class TimeScheduler {
     public void setStartTime(int startTime) {
         this.startTime = startTime;
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(year).append("/").append(month).append("/").append(dayOfMonth);
-        String strDate = sb.toString();
-
-        try {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("startTime", startTime);
-            jsonObject.put("endTime", endTime);
-
-            SharedPreferences sp = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sp.edit();
-            editor.putString(strDate, jsonObject.toString());
-            editor.commit();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        setTime(startTime, endTime, vacation);
         updateInfo(year, month, dayOfMonth);
     }
 
@@ -219,22 +234,7 @@ public class TimeScheduler {
     public void setEndTime(int endTime) {
         this.endTime = endTime;
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(year).append("/").append(month).append("/").append(dayOfMonth);
-        String strDate = sb.toString();
-
-        try {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("startTime", startTime);
-            jsonObject.put("endTime", endTime);
-
-            SharedPreferences sp = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sp.edit();
-            editor.putString(strDate, jsonObject.toString());
-            editor.commit();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        setTime(startTime, endTime, vacation);
         updateInfo(year, month, dayOfMonth);
     }
 
@@ -260,5 +260,51 @@ public class TimeScheduler {
 
     public int getDayOfWeek() {
         return dayOfWeek;
+    }
+
+    public void setVacation(Vacation vacation) {
+        if (vacation == Vacation.FULL_TIME_OFF) {
+            startTime = 0;
+            endTime = 0;
+        }
+        setTime(startTime, endTime, vacation);
+        updateInfo(year, month, dayOfMonth);
+    }
+
+    private void setTime(int startTime, int endTime, Vacation vacation) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(year).append("/").append(month).append("/").append(dayOfMonth);
+        String strDate = sb.toString();
+
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("startTime", startTime);
+            jsonObject.put("endTime", endTime);
+
+            int vac;
+            if (vacation == Vacation.HALF_DAY_OFF)
+                vac = 0;
+            else if (vacation == Vacation.FULL_TIME_OFF)
+                vac = 1;
+            else
+                vac = 2;
+            jsonObject.put("vacation", vac);
+
+            SharedPreferences sp = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString(strDate, jsonObject.toString());
+            editor.commit();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void reset() {
+        this.startTime = 0;
+        this.endTime = 0;
+        this.vacation = Vacation.NONE;
+
+        setTime(startTime, endTime, vacation);
+        updateInfo(year, month, dayOfMonth);
     }
 }
