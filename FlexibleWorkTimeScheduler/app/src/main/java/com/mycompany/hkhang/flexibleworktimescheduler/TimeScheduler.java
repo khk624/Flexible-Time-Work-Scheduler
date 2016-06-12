@@ -165,7 +165,11 @@ public class TimeScheduler {
             workingTime = workingTime - getTotalMealTime(startTime, endTime);
             if (vacation == Vacation.HALF_DAY_OFF)
                 workingTime += 4 * 60;
-            return workingTime;
+
+            if (workingTime > 12 * 60)
+                return 12 * 60;
+            else
+                return workingTime;
         }
     }
 
@@ -269,6 +273,10 @@ public class TimeScheduler {
         }
         setTime(startTime, endTime, vacation);
         updateInfo(year, month, dayOfMonth);
+    }
+
+    public Vacation getVacation() {
+        return vacation;
     }
 
     private void setTime(int startTime, int endTime, Vacation vacation) {

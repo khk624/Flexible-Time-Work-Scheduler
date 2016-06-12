@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
     TextView textViewEndTime;
     TextView textViewTotalTime;
     TextView textViewRemaining;
+    TextView textViewVacation;
 
     private static final long DOUBLE_CLICK_TIME_DELTA = 300;//milliseconds
     private long lastClickTime = 0;
@@ -142,10 +143,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void init() {
         textViewWeek = (TextView) findViewById(R.id.textView_week);
-        textViewStartTime = (TextView) findViewById(R.id.textView_startTime);
-        textViewEndTime = (TextView) findViewById(R.id.textView_endTime);
+        textViewStartTime = (TextView) findViewById(R.id.textView_startTime_time);
+        textViewEndTime = (TextView) findViewById(R.id.textView_endTime_time);
         textViewTotalTime = (TextView) findViewById(R.id.textView_total_time);
         textViewRemaining = (TextView) findViewById(R.id.textView_remaining_time);
+        textViewVacation = (TextView) findViewById(R.id.textView_vacation);
 
         timeScheduler = new TimeScheduler(getApplicationContext());
 
@@ -160,7 +162,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUI() {
         StringBuilder sb = new StringBuilder();
-        sb.append(timeScheduler.getMonth()+1).append("    ").append(timeScheduler.getDayOfWeek()).append("th week");
+        sb.append(timeScheduler.getYear()).append("/").append(convertMonthIntegerToString(timeScheduler.getMonth())).append("'s ");
+        sb.append(timeScheduler.getDayOfWeek());
+        if (timeScheduler.getDayOfWeek() == 1)
+            sb.append("st");
+        else if (timeScheduler.getDayOfWeek() == 2)
+            sb.append("nd");
+        else if (timeScheduler.getDayOfWeek() == 3)
+            sb.append("rd");
+        else
+            sb.append("th");
+        sb.append(" week Working Information");
 
         textViewWeek.setText(sb.toString());
 
@@ -169,6 +181,40 @@ public class MainActivity extends AppCompatActivity {
 
         textViewTotalTime.setText(formatOutput(timeScheduler.getTotalTime()));
         textViewRemaining.setText(formatOutput(timeScheduler.getRemainingTime()));
+
+        if (timeScheduler.getVacation() == TimeScheduler.Vacation.HALF_DAY_OFF)
+            textViewVacation.setText("HALF DAY OFF");
+        else if (timeScheduler.getVacation() == TimeScheduler.Vacation.FULL_TIME_OFF)
+            textViewVacation.setText("FULL TIME OFF");
+        else
+            textViewVacation.setText("NONE");
+    }
+
+    private String convertMonthIntegerToString(int month) {
+        if (month == 0)
+            return "JAN";
+        else if (month == 1)
+            return "FEB";
+        else if (month == 2)
+            return "MAR";
+        else if (month == 3)
+            return "APR";
+        else if (month == 4)
+            return "MAY";
+        else if (month == 5)
+            return "JUN";
+        else if (month == 6)
+            return "JUL";
+        else if (month == 7)
+            return "AUG";
+        else if (month == 8)
+            return "SEP";
+        else if (month == 9)
+            return "OCT";
+        else if (month == 10)
+            return "NOV";
+        else
+            return "DEC";
     }
 
     private String formatOutput(int totalMinutes) {
